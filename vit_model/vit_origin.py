@@ -84,7 +84,8 @@ class Attention(nn.Module):
         super(Attention, self).__init__()
         self.num_heads = num_heads
         head_dim = dim // num_heads
-        self.scale = qk_scale or head_dim ** -0.5
+        #self.scale = qk_scale or head_dim ** -0.5
+        self.temperature = nn.Parameter(torch.log(torch.tensor(head_dim ** -0.5)))
         self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
         self.attn_drop = nn.Dropout(attn_drop_ratio)
         self.proj = nn.Linear(dim, dim)
@@ -104,7 +105,13 @@ class Attention(nn.Module):
 
         # transpose: -> [batch_size, num_heads, embed_dim_per_head, num_patches + 1]
         # @: multiply -> [batch_size, num_heads, num_patches + 1, num_patches + 1]
-        attn = (q @ k.transpose(-2, -1)) * self.scale
+        attn = (q @ k.transpose(-2, -1)) * self.temperature.exp()
+        #创建掩码
+        mask = torch.eye(attn.shape[-1], device=attn.device, dtype=torch.bool)
+        mask_value = -torch.finfo(attn.dtype).max
+        #使用掩码
+        attn = attn.masked_fill(mask, mask_value)
+        #softmax
         attn = attn.softmax(dim=-1)
         attn = self.attn_drop(attn)
 

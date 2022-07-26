@@ -17,8 +17,8 @@ from utils.utils import read_split_data, train_one_epoch, evaluate
 def main(args):
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
 
-    if os.path.exists("./weights") is False:
-        os.makedirs("./weights")
+    if os.path.exists(f"./{args.exp_name}_weights") is False:
+        os.makedirs(f"./{args.exp_name}_weights")
 
     tb_writer = SummaryWriter()
 
@@ -45,8 +45,8 @@ def main(args):
                             transform=data_transform["val"])
 
     batch_size = args.batch_size
-    #nw = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])  # number of workers
-    nw=3
+    nw = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])  # number of workers
+    #nw=2
     print('Using {} dataloader workers every process'.format(nw))
     train_loader = torch.utils.data.DataLoader(train_dataset,
                                                batch_size=batch_size,
@@ -111,22 +111,24 @@ def main(args):
         tb_writer.add_scalar(tags[2], val_loss, epoch)
         tb_writer.add_scalar(tags[3], val_acc, epoch)
         tb_writer.add_scalar(tags[4], optimizer.param_groups[0]["lr"], epoch)
-        if epoch>=args.epochs*0.75:
-            torch.save(model.state_dict(), "./weights/model-{}.pth".format(epoch))
+        if epoch>=args.epochs*0.90:
+            torch.save(model.state_dict(), "./{}_weights/model-{}.pth".format(args.exp_name,epoch))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--num_classes', type=int, default=10)
+    parser.add_argument('--num_classes', type=int, default=38)
     parser.add_argument('--epochs', type=int, default=50)
     parser.add_argument('--batch-size', type=int, default=8)
-    parser.add_argument('--lr', type=float, default=0.002)
+    parser.add_argument('--lr', type=float, default=0.003)
     parser.add_argument('--lrf', type=float, default=0.01)
+    parser.add_argument('--exp_name', type=str, default='vit-base-all')
 
     # 数据集所在根目录
     # https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
     parser.add_argument('--data-path', type=str,
-                        default="/media/xjw/doc/00-ubuntu-files/plantvillage_tomato")
+                        #default="/media/xjw/doc/00-ubuntu-files/Plant_leaf_diseases_tomato_augmentation")
+                        default="/media/xjw/doc/00-ubuntu-files/archive/plantvillage dataset/color")
     parser.add_argument('--model-name', default='', help='create model name')
 
     # 预训练权重路径，如果不想载入就设置为空字符
