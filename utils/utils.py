@@ -21,6 +21,33 @@ def get_lab(x):
     return xout
 
 
+def read_data(root: str):
+    random.seed(0)  # 保证随机结果可复现
+    assert os.path.exists(root), "dataset root: {} does not exist.".format(root)
+    # 遍历文件夹，一个文件夹对应一个类别
+    data_class = [cla for cla in os.listdir(root) if os.path.isdir(os.path.join(root, cla))]
+    # 排序，保证顺序一致
+    data_class.sort()
+    # 生成类别名称以及对应的数字索引
+    class_indices = dict((k, v) for v, k in enumerate(data_class))
+    train_images_path = []  # 存储训练集的所有图片路径
+    train_images_label = []  # 存储训练集图片对应索引信息
+    supported = [".jpg", ".JPG", ".png", ".PNG"]  # 支持的文件后缀类型
+    # 遍历每个文件夹下的文件
+    for cla in data_class:
+        cla_path = os.path.join(root, cla)
+        # 遍历获取supported支持的所有文件路径
+        images = [os.path.join(root, cla, i) for i in os.listdir(cla_path)
+                  if os.path.splitext(i)[-1] in supported]
+        # 获取该类别对应的索引
+        image_class = class_indices[cla]
+        for img_path in images:
+            train_images_path.append(img_path)
+            train_images_label.append(image_class)
+    return train_images_path, train_images_label
+
+
+
 def read_split_data(root: str, val_rate: float = 0.2):
     random.seed(0)  # 保证随机结果可复现
     assert os.path.exists(root), "dataset root: {} does not exist.".format(root)

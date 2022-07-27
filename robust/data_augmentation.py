@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import os.path
 import copy
-
+from  tqdm import tqdm
 
 # 椒盐噪声
 def SaltAndPepper(src, percetage):
@@ -80,7 +80,7 @@ def flip(image):
 
 
 # 图片文件夹路径
-file_dir = '/media/xjw/doc/00-ubuntu-files/test-tomato/'
+file_dir = './test-tomato-img/'
 
 # for img_name in os.listdir(file_dir):
 #     img_path = file_dir + img_name
@@ -92,38 +92,38 @@ file_dir = '/media/xjw/doc/00-ubuntu-files/test-tomato/'
 #     cv2.imwrite(file_dir + img_name[0:-4] + '_r90.jpg', rotated_90)
 #     rotated_180 = rotate(img, 180)
 #     cv2.imwrite(file_dir + img_name[0:-4] + '_r180.jpg', rotated_180)
+for rate in np.linspace(0,0.04,9):
+    for dir in tqdm(os.listdir(file_dir)):
+        category=os.path.basename(dir)
+        for img_name in os.listdir(file_dir+dir):
+            file_out=os.path.join(file_dir[0:-1] + f'-SaltAndPepper-{rate}',category)+'/'
+            if not os.path.exists(file_out):
+                os.makedirs(file_out)
+            img_path=os.path.join(file_dir,category,img_name)
+            img = cv2.imread(img_path)
+            #cv2.imwrite(file_out + img_name,img)
+            # 镜像
+            #flipped_img = flip(img)
+            #cv2.imwrite(file_dir + img_name[0:-4] + '_fli.jpg', flipped_img)
 
-for dir in os.listdir(file_dir):
-    category=os.path.basename(dir)
-    for img_name in os.listdir(file_dir+dir):
-        file_out=os.path.join(file_dir[0:-1] + '_augmentation',category)+'/'
-        if not os.path.exists(file_out):
-            os.makedirs(file_out)
-        img_path=os.path.join(file_dir,category,img_name)
-        img = cv2.imread(img_path)
-        #cv2.imwrite(file_out + img_name,img)
-        # 镜像
-        #flipped_img = flip(img)
-        #cv2.imwrite(file_dir + img_name[0:-4] + '_fli.jpg', flipped_img)
+            # 增加噪声
+            img_salt = SaltAndPepper(img, rate)
+            cv2.imwrite(file_out + img_name[0:-4] + '_salt.jpg', img_salt)
+            # img_gauss = addGaussianNoise(img, 0.3)
+            # cv2.imwrite(file_out + img_name[0:-4] + '_noise.jpg', img_gauss)
 
-        # 增加噪声
-        # img_salt = SaltAndPepper(img, 0.1)
-        # cv2.imwrite(file_out + img_name[0:-4] + '_salt.jpg', img_salt)
-        # img_gauss = addGaussianNoise(img, 0.3)
-        # cv2.imwrite(file_out + img_name[0:-4] + '_noise.jpg', img_gauss)
+            # 变亮、变暗
+            # img_darker = darker(img)
+            # cv2.imwrite(file_out + img_name[0:-4] + '_darker.jpg', img_darker)
+            # img_brighter = brighter(img)
+            # cv2.imwrite(file_out + img_name[0:-4] + '_brighter.jpg', img_brighter)
+            #
+            # blur = cv2.GaussianBlur(img, (7, 7), 1.5)
+            # # #      cv2.GaussianBlur(图像，卷积核，标准差）
+            # cv2.imwrite(file_out + img_name[0:-4] + '_blur.jpg', blur)
 
-        # 变亮、变暗
-        # img_darker = darker(img)
-        # cv2.imwrite(file_out + img_name[0:-4] + '_darker.jpg', img_darker)
-        # img_brighter = brighter(img)
-        # cv2.imwrite(file_out + img_name[0:-4] + '_brighter.jpg', img_brighter)
-        #
-        # blur = cv2.GaussianBlur(img, (7, 7), 1.5)
-        # # #      cv2.GaussianBlur(图像，卷积核，标准差）
-        # cv2.imwrite(file_out + img_name[0:-4] + '_blur.jpg', blur)
-
-        blur = cv2.blur(img, (7, 7))
-        # #      cv2.GaussianBlur(图像，卷积核，标准差）
-        cv2.imwrite(file_out + img_name[0:-4] + '_blur.jpg', blur)
+            # blur = cv2.blur(img, (7, 7))
+            # # #      cv2.GaussianBlur(图像，卷积核，标准差）
+            # cv2.imwrite(file_out + img_name[0:-4] + '_blur.jpg', blur)
 
 
