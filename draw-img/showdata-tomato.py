@@ -12,12 +12,13 @@ def main():
     show()
 
 def show():
-    labels =['Background_without_leaves', 'Tomato___Bacterial_spot', 'Tomato___Early_blight', 'Tomato___Late_blight', 'Tomato___Leaf_Mold', 'Tomato___Septoria_leaf_spot', 'Tomato___Spider_mites Two-spotted_spider_mite', 'Tomato___Target_Spot', 'Tomato___Tomato_Yellow_Leaf_Curl_Virus', 'Tomato___Tomato_mosaic_virus', 'Tomato___healthy']
+    #labels =['Background_without_leaves', 'Tomato___Bacterial_spot', 'Tomato___Early_blight', 'Tomato___Late_blight', 'Tomato___Leaf_Mold', 'Tomato___Septoria_leaf_spot', 'Tomato___Spider_mites Two-spotted_spider_mite', 'Tomato___Target_Spot', 'Tomato___Tomato_Yellow_Leaf_Curl_Virus', 'Tomato___Tomato_mosaic_virus', 'Tomato___healthy']
+    labels =['背景', '番茄细菌斑', '番茄早疫病', '番茄晚疫病', '番茄叶霉病', '番茄叶斑病', '番茄红蜘蛛病', '番茄靶点病', '番茄黄叶卷曲病', '番茄花叶病', '健康']
 
     orgin=[0,2127, 1000, 1908, 952, 1771, 1676, 1404, 5357, 373, 1591]
     aug=[1143, 2127, 1000, 1908, 1000, 1771, 1676, 1404, 5357, 1000, 1591]
 
-    width = 0.35  # the width of the bars: can also be len(x) sequence
+    width = 0.7  # the width of the bars: can also be len(x) sequence
     plt.rcParams["font.sans-serif"] = ["SimHei"]  # 设置字体
     plt.rcParams["axes.unicode_minus"] = False  # 正常显示负号
     fig, ax = plt.subplots()
@@ -27,7 +28,7 @@ def show():
            label='扩充数量')
 
     ax.set_ylabel('数量')
-    ax.set_title('扩充后的数据集各个种类的分布')
+    #ax.set_title('扩充后的数据集各个种类的分布')
     plt.xticks(rotation=60) # 旋转90度
     ax.legend()
 

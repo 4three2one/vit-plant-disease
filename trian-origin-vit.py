@@ -10,15 +10,15 @@ from torchvision import transforms
 
 
 from utils.my_dataset import MyDataSet
-from vit_model.vit_origin import vit_base_patch16_224 as ViT
+from vit_model.vit_model import vit_base_patch16_224 as ViT
 from utils.utils import read_split_data, train_one_epoch, evaluate
 
 
 def main(args):
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
 
-    if os.path.exists(f"./{args.exp_name}_weights") is False:
-        os.makedirs(f"./{args.exp_name}_weights")
+    if os.path.exists(f"./weights-train/{args.exp_name}_weights") is False:
+        os.makedirs(f"./weights-train/{args.exp_name}_weights")
 
     tb_writer = SummaryWriter()
 
@@ -111,8 +111,8 @@ def main(args):
         tb_writer.add_scalar(tags[2], val_loss, epoch)
         tb_writer.add_scalar(tags[3], val_acc, epoch)
         tb_writer.add_scalar(tags[4], optimizer.param_groups[0]["lr"], epoch)
-        if epoch>=args.epochs*0.90:
-            torch.save(model.state_dict(), "./{}_weights/model-{}.pth".format(args.exp_name,epoch))
+        if epoch>=args.epochs*0.95:
+            torch.save(model.state_dict(), "./weights-train/{}_weights/model-{}.pth".format(args.exp_name,epoch))
 
 
 if __name__ == '__main__':
@@ -122,18 +122,20 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', type=int, default=8)
     parser.add_argument('--lr', type=float, default=0.003)
     parser.add_argument('--lrf', type=float, default=0.01)
-    parser.add_argument('--exp_name', type=str, default='vit-base-all')
+    parser.add_argument('--exp_name', type=str, default='vit-base-aug-all-8-2-from-scratch')
 
     # 数据集所在根目录
     # https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
     parser.add_argument('--data-path', type=str,
-                        #default="/media/xjw/doc/00-ubuntu-files/Plant_leaf_diseases_tomato_augmentation")
-                        default="/media/xjw/doc/00-ubuntu-files/archive/plantvillage dataset/color")
+                        default="/media/xjw/doc/00-ubuntu-files/Plant_leaf_diseases_tomato_augmentation")
+                        #default="/media/xjw/doc/00-ubuntu-files/archive/plantvillage dataset/color")
     parser.add_argument('--model-name', default='', help='create model name')
 
     # 预训练权重路径，如果不想载入就设置为空字符
-    parser.add_argument('--weights', type=str, default='/media/xjw/doc/00-ubuntu-files/vit/model/vit_base_patch16_224.pth',
-                        help='initial weights path')
+    # parser.add_argument('--weights', type=str, default='/media/xjw/doc/00-ubuntu-files/vit/model/vit_base_patch16_224.pth',
+    #                     help='initial weights path')
+    parser.add_argument('--weights', type=str,
+                        default='',  help='initial weights path')
     # 是否冻结权重
     parser.add_argument('--freeze-layers', type=bool, default=False)
     parser.add_argument('--device', default='cuda:0', help='device id (i.e. 0 or 0,1 or cpu)')
