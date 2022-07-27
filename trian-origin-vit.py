@@ -122,7 +122,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', type=int, default=8)
     parser.add_argument('--lr', type=float, default=0.003)
     parser.add_argument('--lrf', type=float, default=0.01)
-    parser.add_argument('--exp_name', type=str, default='vit-base-aug-all-8-2-from-scratch')
+    parser.add_argument('--exp_name', type=str, default='vit-base-aug-tomato-8-2-from-scratch')
 
     # 数据集所在根目录
     # https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz

@@ -1,6 +1,6 @@
 from visualizer import get_local
 get_local.activate()
-from vit_model.vit_model import vit_base_patch16_224 as vit
+from vit_model.epe_msa_vit import vit_base_patch16_224 as vit
 from utils.visual_attention_utils import visualize_grid_to_grid_with_cls,visualize_heads
 import torch
 import torchvision.transforms as T
@@ -24,7 +24,7 @@ get_local.clear()
 # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 device = torch.device("cpu")
 model = vit(num_classes=10).to(device)
-model_weight_path = "/home/xjw/PycharmProjects/vit-plant-disease/hotmap/origin-vit-tomato.pth"
+model_weight_path = "/home/xjw/PycharmProjects/vit-plant-disease/weights/epe-msa-vit-base-tomato_weights/model-49.pth"
 model.load_state_dict(torch.load(model_weight_path))
 model.eval()
 
@@ -36,8 +36,6 @@ print(imagenet_cls[str(out.argmax().item())])
 cache = get_local.cache
 print(list(cache.keys()))
 attention_maps = cache['Attention.forward']
-print(len(attention_maps))
-attention_maps[0].shape
 # for i in range(0, 12):
 #     visualize_grid_to_grid_with_cls(attention_maps[1][0, i, :, :], 0, image)
 # visualize_grid_to_grid(attention_maps[3][0,0,1:,1:], 100, image)
@@ -45,4 +43,4 @@ attention_maps[0].shape
 # visualize_heads(attention_maps[0], cols=4)
 # visualize_head(attention_maps[7][0,1])
 for i in range(0, 12):
-    visualize_heads(attention_maps[i], cols=4)
+    visualize_heads(attention_maps[i], cols=6)
