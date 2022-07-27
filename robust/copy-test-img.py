@@ -1,8 +1,8 @@
 import os
 import json
 import random
-import matplotlib.pyplot as plt
-
+import shutil
+from tqdm import tqdm
 def cp_split_data(source: str, target: str, val_rate: float = 0.2):
     random.seed(0)  # 保证随机结果可复现
     assert os.path.exists(source), "dataset root: {} does not exist.".format(source)
@@ -35,36 +35,19 @@ def cp_split_data(source: str, target: str, val_rate: float = 0.2):
         every_class_num.append(len(images))
         # 按比例随机采样验证样本
         val_path = random.sample(images, k=int(len(images) * val_rate))
+        target_cla_dir=f"./{target}/{cla}"
+        if os.path.exists(target_cla_dir) is False:
+            os.makedirs(target_cla_dir)
 
-        for img_path in images:
+        for img_path in tqdm(images):
             if img_path in val_path:  # 如果该路径在采样的验证集样本中则存入验证集
-                val_images_path.append(img_path)
-                val_images_label.append(image_class)
-            else:  # 否则存入训练集
-                train_images_path.append(img_path)
-                train_images_label.append(image_class)
+                # val_images_path.append(img_path)
+                # val_images_label.append(image_class)
+                img_dir,img_name=os.path.split(img_path)
+                if os.path.exists(os.path.join(target_cla_dir, img_name)):
+                    print(f"文件{img_name}，已经存在，跳过拷贝... ")
+                else:
+                    shutil.copyfile(img_path, os.path.join(target_cla_dir, img_name) )
 
-    print("{} images were found in the dataset.".format(sum(every_class_num)))
-    print("{} images for training.".format(len(train_images_path)))
-    print("{} images for validation.".format(len(val_images_path)))
-
-    plot_image = False
-    if plot_image:
-        # 绘制每种类别个数柱状图
-        plt.bar(range(len(flower_class)), every_class_num, align='center')
-        # 将横坐标0,1,2,3,4替换为相应的类别名称
-        plt.xticks(range(len(flower_class)), flower_class)
-        # 在柱状图上添加数值标签
-        for i, v in enumerate(every_class_num):
-            plt.text(x=i, y=v + 5, s=str(v), ha='center')
-        # 设置x坐标
-        plt.xlabel('image class')
-        # 设置y坐标
-        plt.ylabel('number of images')
-        # 设置柱状图的标题
-        plt.title('flower class distribution')
-        plt.show()
-
-    return train_images_path, train_images_label, val_images_path, val_images_label
 if __name__ == '__main__':
-    cp_split_data("/media/xjw/doc/00-ubuntu-files/Plant_leaf_diseases_tomato_augmentation","./test-img")
+    cp_split_data(r"D:\dataset\plantvillage_aug_tomato","./test-tomato-img")
