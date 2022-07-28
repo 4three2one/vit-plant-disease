@@ -92,11 +92,11 @@ file_dir = './test-tomato-img/'
 #     cv2.imwrite(file_dir + img_name[0:-4] + '_r90.jpg', rotated_90)
 #     rotated_180 = rotate(img, 180)
 #     cv2.imwrite(file_dir + img_name[0:-4] + '_r180.jpg', rotated_180)
-for rate in np.linspace(0,0.04,9):
+for rate in np.linspace(0,0.1,11):
     for dir in tqdm(os.listdir(file_dir)):
         category=os.path.basename(dir)
         for img_name in os.listdir(file_dir+dir):
-            file_out=os.path.join(file_dir[0:-1] + f'-SaltAndPepper-{rate}',category)+'/'
+            file_out=os.path.join(f'{file_dir[0:-1]}-output-SaltAndPepper',f'{rate}',category)+'/'
             if not os.path.exists(file_out):
                 os.makedirs(file_out)
             img_path=os.path.join(file_dir,category,img_name)
