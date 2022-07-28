@@ -46,7 +46,7 @@ def main():
     # create model
     model = create_model(num_classes=10).to(device)
     # load model weights
-    model_weight_path = "./vit-tomato-no-freeze-weights/model-49.pth"
+    model_weight_path = "./vit-tomato-no-freeze-weights/epe-msa-bias1-vit-base-aug-tomato-8-2-from-scratch.pth"
     model.load_state_dict(torch.load(model_weight_path, map_location=device))
     model.eval()
 

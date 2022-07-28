@@ -49,7 +49,7 @@ class PatchEmbed(nn.Module):
         super().__init__()
         img_size = (img_size, img_size)
         patch_size = (patch_size, patch_size)
-        self.shifts=  ((1, -1, 0, 0), (-1, 1, 0, 0), (0, 0, 1, -1), (0, 0, -1, 1))
+        self.shifts=  ((8, -8, 0, 0), (-8, 8, 0, 0), (0, 0, 8, -8), (0, 0, -8, 8))
         in_c_a=(len(self.shifts)+1)*in_c
         self.img_size = img_size
         self.patch_size = patch_size
