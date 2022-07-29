@@ -112,7 +112,7 @@ def main(args):
         tb_writer.add_scalar(tags[3], val_acc, epoch)
         tb_writer.add_scalar(tags[4], optimizer.param_groups[0]["lr"], epoch)
         if epoch>=args.epochs*0.95:
-            torch.save(model.state_dict(), "./{}_weights/model-{}.pth".format(args.exp_name,epoch))
+            torch.save(model.state_dict(), "./weights-train/{}_weights/model-{}.pth".format(args.exp_name, epoch))
 
 
 if __name__ == '__main__':

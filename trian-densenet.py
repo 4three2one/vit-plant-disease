@@ -10,7 +10,7 @@ from torchvision import transforms
 
 
 from utils.my_dataset import MyDataSet
-from cnn_model.resnet import resnet50 as  resnet
+from cnn_model.densenet import densenet121 as densenet
 from utils.utils import read_split_data, train_one_epoch, evaluate
 
 
@@ -62,16 +62,26 @@ def main(args):
                                              num_workers=nw,
                                              collate_fn=val_dataset.collate_fn)
 
-    model = resnet(num_classes=args.num_classes).to(device)
+    model = densenet(num_classes=args.num_classes).to(device)
 
     if args.weights != "":
         assert os.path.exists(args.weights), "weights file: '{}' not exist.".format(args.weights)
-        weights_dict = torch.load(args.weights, map_location="cpu")
-        del_keys = ['fc.weight', 'fc.bias']
+        weights_dict = torch.load(args.weights, map_location=device)
+        # 删除不需要的权重
+        # del_keys = ['head.weight', 'head.bias'] if model.has_logits \
+        #     else ['pre_logits.fc.weight', 'pre_logits.fc.bias', 'head.weight', 'head.bias']
+        del_keys = ['head.weight', 'head.bias','patch_embed.proj.bias','patch_embed.proj.weight']
         for k in del_keys:
             del weights_dict[k]
         print(model.load_state_dict(weights_dict, strict=False))
 
+    if args.freeze_layers:
+        for name, para in model.named_parameters():
+            # 除head, pre_logits外，其他权重全部冻结
+            if "head" not in name and "pre_logits" not in name:
+                para.requires_grad_(False)
+            else:
+                print("training {}".format(name))
 
     pg = [p for p in model.parameters() if p.requires_grad]
     optimizer = optim.SGD(pg, lr=args.lr, momentum=0.9, weight_decay=5E-5)
@@ -101,8 +111,9 @@ def main(args):
         tb_writer.add_scalar(tags[2], val_loss, epoch)
         tb_writer.add_scalar(tags[3], val_acc, epoch)
         tb_writer.add_scalar(tags[4], optimizer.param_groups[0]["lr"], epoch)
-        if epoch >= args.epochs * 0.95:
-            torch.save(model.state_dict(), "./weights-train/{}_weights/model-{}.pth".format(args.exp_name, epoch))
+        if epoch>=args.epochs*0.95:
+            torch.save(model.state_dict(), "./weights-train/{}_weights/model-{}.pth".format(args.exp_name,epoch))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -111,20 +122,20 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', type=int, default=8)
     parser.add_argument('--lr', type=float, default=0.003)
     parser.add_argument('--lrf', type=float, default=0.01)
-    parser.add_argument('--exp_name', type=str, default='resnet50-aug-tomato-8-2-from-scratch')
+    parser.add_argument('--exp_name', type=str, default='densenet-aug-tomato-8-2-from-scratch')
 
     # 数据集所在根目录
     # https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
     parser.add_argument('--data-path', type=str,
                         default="/media/xjw/doc/00-ubuntu-files/Plant_leaf_diseases_tomato_augmentation")
                         #default="/media/xjw/doc/00-ubuntu-files/archive/plantvillage dataset/color")
-                        #default="/media/xjw/doc/00-ubuntu-files/Plant_leaf_diseases_augmentation")
-    parser.add_argument('--model-name', default='', help='create model name')
+    parser.add_argument('--o', default='', help='create model name')
 
     # 预训练权重路径，如果不想载入就设置为空字符
-    # parser.add_argument('--weights', type=str, default='/media/xjw/doc/00-ubuntu-files/download/resnet50-19c8e357.pth',
+    # parser.add_argument('--weights', type=str, default='/media/xjw/doc/00-ubuntu-files/vit/model/vit_base_patch16_224.pth',
     #                     help='initial weights path')
-    parser.add_argument('--weights', type=str, default='')
+    parser.add_argument('--weights', type=str,
+                        default='',  help='initial weights path')
     # 是否冻结权重
     parser.add_argument('--freeze-layers', type=bool, default=False)
     parser.add_argument('--device', default='cuda:0', help='device id (i.e. 0 or 0,1 or cpu)')
